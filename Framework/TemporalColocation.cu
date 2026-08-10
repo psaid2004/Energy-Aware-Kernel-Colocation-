@@ -21,10 +21,15 @@
 #include <nvml.h>
 
 
+// This file measures the performance of all kernel pairs under temporal colocation.
+// Kernels are partitioned into subkernels and alternate execution on the GPU.
+// The average time, power and energy is calculated for the two kernels over several iterations.
+// Additionally, the tail time is measured, which is the time difference between the end of the first kernel and the end of the second kernel.
 
 
-// HOW TO COMPILE: nvcc -std=c++17 TemporalColocation.cu -I../Common -lnvidia-ml -o temporalColocation
-//  CUDA_MODULE_LOADING=EAGER ./temporalColocation 
+// HOW TO COMPILE: nvcc -std=c++17 TemporalColocation.cu -I../Common -lnvidia-ml -o TemporalColocation
+//  CUDA_MODULE_LOADING=EAGER ./TemporalColocation
+
 
 #include <cuda_runtime.h>
 #include <stdio.h>
@@ -221,13 +226,15 @@ int main(void)
     nvmlDeviceGetHandleByIndex(0, &device);
 
     int iterations = 10; 
+    // Alter Partitions to test different partitioning configurations
     int partitions_list_A[] = {2,3,4,5,6};
     int partitions_list_B[] = {6,5,4,3,2};
 
-    // const char *kernel_list_A[] = {"nn", "gemm","bfs1","vecAdd", "blackScholes"};
-    // const char *kernel_list_B[] = {"backprop2","gaussian1","backprop2","bfs2", "gaussian1",};
-    const char *kernel_list_A[] = {"nn"};
-    const char *kernel_list_B[] = {"backprop2"};
+    // Change kernels to be measured. Each kernel of each list are colocated with their corespoding kernel in the other list. 
+    // For example, kernel_list_A[0] is colocated with kernel_list_B[0].
+    const char *kernel_list_A[] = {"nn", "gemm","bfs1","vecAdd", "blackScholes"};
+    const char *kernel_list_B[] = {"backprop2","gaussian1","backprop2","bfs2", "gaussian1",};
+
 
 
     int numKernels = sizeof(kernel_list_A) / sizeof(kernel_list_A[0]);

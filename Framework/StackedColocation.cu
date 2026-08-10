@@ -21,9 +21,14 @@
 #include <nvml.h>
 
 
+// This file measures the performance of all kernel pairs under stacked colocation.
+// Each kernel uses half of the GPU resources, achieved through manipulating launch configurations.
+// The average time, power and energy is calculated for the two kernels over several iterations.
 
 
-// HOW TO COMPILE: nvcc -std=c++17 BaselineCalculation.cu -I../Common -lnvidia-ml -o baselinetest
+// HOW TO COMPILE: nvcc -std=c++17 StackedColocation.cu -I../Common -lnvidia-ml -o StackedColocation
+//  CUDA_MODULE_LOADING=EAGER ./StackedColocation
+
 
 
 #include <cuda_runtime.h>
@@ -220,11 +225,12 @@ int main(void)
     nvmlDeviceGetHandleByIndex(0, &device);
 
     int iterations = 5; 
-    int baselinePartition = 1;
-    // const char *all_kernels[] = {"sradv2_1","sradv2_2", "histogram","backprop1","hotspot", "matrixMultiplication","gaussian2", "blackScholes","gaussian1","backprop2", "bfs1", "bfs2","vecAdd","nn","binaryPartition","gemm"}; // ORDER FOR 40 blcoks
-    // const char *all_kernels[] = {"histogram","backprop1","sradv2_1","sradv2_2","hotspot", "matrixMultiplication","gaussian2", "blackScholes","gaussian1","backprop2", "bfs1", "bfs2","vecAdd","nn","binaryPartition","gemm"}; // ORDER FOR 40 blcoks
-    const char *all_kernels[] = {"histogram","backprop1"};
 
+    // Do not change this value
+    int baselinePartition = 1;
+
+    // Change kernels to be measured.
+    const char *all_kernels[] = {"sradv2_1","sradv2_2", "histogram","backprop1","hotspot", "matrixMultiplication","gaussian2", "blackScholes","gaussian1","backprop2", "bfs1", "bfs2","vecAdd","nn","binaryPartition","gemm"}; 
     int numKernels = sizeof(all_kernels) / sizeof(all_kernels[0]);
 
     int numPairs       = (numKernels * (numKernels - 1) / 2);

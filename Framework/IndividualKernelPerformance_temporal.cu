@@ -21,10 +21,15 @@
 #include <nvml.h>
 
 
+// This file is used to get the performance of individual kernels, only one kernel is executed and measured.
+// The kernel can be partioned into subkernels if desired, at with partition=1 it is the same as the baseline.
+//The average time, power and energy is calculated for the kernel over several iterations.
 
 
-// HOW TO COMPILE: nvcc -std=c++17 BaselineCalculation.cu -I../Common -lnvidia-ml -o baselinetest
-//CUDA_MODULE_LOADING=EAGER ./individualKernelPerformance
+
+// HOW TO COMPILE: nvcc -std=c++17 IndividualKernelPerformance_temporal.cu -I../Common -lnvidia-ml -o IndividualKernelPerformance_temporal
+//CUDA_MODULE_LOADING=EAGER ./IndividualKernelPerformance_temporal
+
 
 #include <cuda_runtime.h>
 #include <stdio.h>
@@ -189,7 +194,13 @@ int main(void)
     nvmlDeviceGetHandleByIndex(0, &device);
 
     int iterations = 10; 
+
+    // Change partion to 1 for baseline, or higher such that a kernel is divided into more subkernels.
     int baselinePartition = 1;
+
+
+
+    // Change kernels to be measured.
     // const char *all_kernels[] = {"vecAdd", "matrixMultiplication", "sradv2_1", "sradv2_2", "nn", "hotspot", "histogram","gaussian1", "gaussian2", "gemm", "blackScholes", "binaryPartition", "backprop1", "backprop2", "bfs1", "bfs2"};
     const char *all_kernels[] = {"gemm", "gaussian1"};
 
@@ -216,7 +227,6 @@ int main(void)
             float energyAcc = 0.0f;
             float powerAcc  = 0.0f;
             float timeAcc   = 0.0f;
-            printf("------------------Warmup for kernels %s and %s-----------------------\n", kernelA, kernelB);
 
             printf("------------------Colocating kernels %s and %s-----------------------\n", kernelA, kernelB);
             for (int m = 0; m < iterations; m++) {

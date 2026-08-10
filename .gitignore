@@ -11,6 +11,7 @@
 *.bin
 *.elf
 *.txt
+*.lib
 /.bash_history
 /.bashrc
 /.cache
@@ -21,4 +22,39 @@
 /.vscode-server
 /.wget-hsts
 /Documents
+/test.cu
+# NVIDIA profiling
+*.nsys-rep
+*.qdrep
+*.sqlite
+*.nsys*
+*.ncu-rep
+*.ncu*
+
+# Compiled binaries
+*.exe
+*.out
+*.bin
+*.elf
+syncvecadd
+
+# Libraries
+*.lib
+
+# Text files
+*.txt
+
+# Local environment
+/.bash_history
+/.bashrc
+/.cache
+/.copilot
+/.dotnet
+/.gitlab
+/.nv
+/.vscode-server
+/.wget-hsts
+/Documents
+
+# Test files
 /test.cu

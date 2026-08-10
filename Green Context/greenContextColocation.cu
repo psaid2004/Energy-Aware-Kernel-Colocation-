@@ -19,8 +19,13 @@
 #include "../bfs/strippedbfs2_temporal.cu"
 #include <nvml.h>
 
-// nvcc -std=c++17 greenContextEqualPartitions.cu -I../Common -lcuda -lnvidia-ml -o greenContextTest
-// CUDA_MODULE_LOADING=EAGER nsys profile --trace=cuda,nvtx,osrt --gpu-metrics-devices=0 --force-overwrite=true -o nsysGreenContext ./greenContextTest
+// This file measures the performance of kernel pairs with assymetrical resource allocation, achived through Green Contexts.
+// Each kernel is assigned a different number of SMs, and the blocks of each kernel are strictly limited to those SMs.
+// The average time, power and energy is calculated for the two kernels over several iterations.
+
+
+// nvcc -std=c++17 greenContextColocation.cu -I../Common -lcuda -lnvidia-ml -o grenContextColocation
+// CUDA_MODULE_LOADING=EAGER ./greenContextColocation 
 
 #include <cuda_runtime.h>
 #include <stdio.h>
@@ -264,10 +269,14 @@ int main(void)
                                      cuda_driver_version, 0, nullptr));
 
     int iterations       = 10;
+
+    // Change kernel pairs executed
     const char *kernel_list_A[] = {"gemm","bfs1","blackScholes","nn","vecAdd"};
     const char *kernel_list_B[] = {"gaussian1","backprop2","gaussian1","backprop2","bfs2"};
 
     
+
+    // Change the SM split to test different resource allocation configurations
     int sm_splitA[] = {40, 60, 20, 30, 50};
     int sm_splitB[] = {40, 20, 60, 50, 30};
    
@@ -281,7 +290,6 @@ int main(void)
 
     warmup(50);
 
-    // ── Main experiment loop ──────────────────────────────────────────────────
     for (int i = 0; i < nKernels; i++) {
         const char *kernelA = kernel_list_A[i];
         const char *kernelB = kernel_list_B[i];

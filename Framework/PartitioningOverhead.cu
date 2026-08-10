@@ -21,10 +21,12 @@
 #include <nvml.h>
 
 
+// This file was used for a side experiment to determine the overhead of partitioning a kernel into subkernels and to see its other impacts. 
 
 
-// HOW TO COMPILE: nvcc -std=c++17 TemporalColocation.cu -I../Common -lnvidia-ml -o temporalColocation
-//  CUDA_MODULE_LOADING=EAGER ./temporalColocation 
+
+// HOW TO COMPILE: nvcc -std=c++17 PartitioningOverhead.cu -I../Common -lnvidia-ml -o PartitioningOverhead
+//  CUDA_MODULE_LOADING=EAGER ./PartitioningOverhead 
 
 #include <cuda_runtime.h>
 #include <stdio.h>
@@ -140,11 +142,8 @@ void colocateKernels(const char *kernelA, const char *kernelB, int partitions_A,
                      float *energy, float *power, float *time)  // pointers
 {
     SetupFn    setupA    = find_setup(kernelA);
-    // SetupFn    setupB    = find_setup(kernelB);
     LauncherFn launcherA = find_launcher(kernelA);
-    // LauncherFn launcherB = find_launcher(kernelB);
     CleanerFn  cleanerA  = find_cleaner(kernelA);
-    // CleanerFn  cleanerB  = find_cleaner(kernelB);
 
     if (!launcherA || !cleanerA || !setupA ) {
         printf("Error finding kernel functions\n");

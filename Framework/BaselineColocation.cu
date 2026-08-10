@@ -20,10 +20,12 @@
 
 #include <nvml.h>
 
+// This file is used to get a baseline comparision for colocation. 
+// Two kernels are executed stricttly sequential, with no overlap. The average time, power and energy is calculated for the two kernels over several iterations.
 
 
-
-// HOW TO COMPILE: nvcc -std=c++17 BaselineCalculation.cu -I../Common -lnvidia-ml -o baselinetest
+// HOW TO COMPILE: nvcc -std=c++17 BaselineCalculation.cu -I../Common -lnvidia-ml -o baselineColocation
+//  CUDA_MODULE_LOADING=EAGER ./baselineColocation
 
 
 #include <cuda_runtime.h>
@@ -198,6 +200,8 @@ int main(void)
 
     int iterations = 10; 
     int baselinePartition = 1;
+
+    //Modify kernel list here
     // const char *all_kernels[] = {"gaussian1","vecAdd", "matrixMultiplication", "sradv2_1", "sradv2_2", "nn", "hotspot", "histogram", "gaussian2", "gemm", "blackScholes", "binaryPartition", "backprop1", "backprop2", "bfs1", "bfs2"};
     const char *all_kernels[] = {"gaussian1","gemm"};
 

@@ -21,10 +21,14 @@
 #include <nvml.h>
 
 
+// This file is used to get the performance of individual kernels, only one kernel is executed and measured.
+// The kernel undergoes stacked colocation and has 40 blocks per launch, so only half of the GPU is used.
+//The average time, power and energy is calculated for the kernel over several iterations.
 
 
-// HOW TO COMPILE: nvcc -std=c++17 BaselineCalculation.cu -I../Common -lnvidia-ml -o baselinetest
-//CUDA_MODULE_LOADING=EAGER ./individualKernelPerformance
+
+// HOW TO COMPILE: nvcc -std=c++17 IndividualKernelPerformance_spatial.cu -I../Common -lnvidia-ml -o IndividualKernelPerformance_spatial
+//CUDA_MODULE_LOADING=EAGER ./IndividualKernelPerformance_spatial
 
 #include <cuda_runtime.h>
 #include <stdio.h>
@@ -190,7 +194,11 @@ int main(void)
     nvmlDeviceGetHandleByIndex(0, &device);
 
     int iterations = 10; 
+    //THIS VALUES SHOULD NOT BE CHANGED
     int baselinePartition = 1;
+
+
+    // Change kernels to be measured.
     // const char *all_kernels[] = {"vecAdd", "matrixMultiplication", "sradv2_1", "sradv2_2", "nn", "hotspot", "histogram","gaussian1", "gaussian2", "gemm", "blackScholes", "binaryPartition", "backprop1", "backprop2", "bfs1", "bfs2"};
 
     const char *all_kernels[] = {"nn", "gemm", "vecAdd", "binaryPartition", "backprop2", "backprop1"};

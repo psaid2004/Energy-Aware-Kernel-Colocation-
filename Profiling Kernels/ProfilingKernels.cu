@@ -21,10 +21,13 @@
 
 #include <nvml.h>
 
-
+// This file is used to measure resource utilization of each kernel individually with the use NVIDIA Nsight Compute.
+// The metric list is shown below, and is used to generate an ncu report that can be opened in the Nsight Compute GUI.
 
 
 // HOW TO COMPILE: nvcc -std=c++17 ProfilingKernels.cu -I../Common -lnvidia-ml -o ProfilingKernels
+
+// Metric list and command to run the profiling experiment
 // ncu -f --metrics sm__pipe_fma_cycles_active.avg.pct_of_peak_sustained_elapsed,sm__pipe_fp64_cycles_active.avg.pct_of_peak_sustained_elapsed,sm__pipe_tensor_cycles_active.avg.pct_of_peak_sustained_elapsed,sm__inst_executed_pipe_tex.sum,sm__inst_executed_pipe_xu.sum,dram__cycles_active.sum,lts__cycles_active.sum,l1tex__cycles_active.sum,sm__inst_executed_pipe_lsu.sum,sm__warps_active.avg.pct_of_peak_sustained_active,l1tex__t_sector_hit_rate.pct,lts__t_sector_hit_rate.pct,sm__inst_executed.sum,sm__cycles_active.sum,sm__warps_active.sum -o ProfilingKernels ./ProfilingKernels
 
 #include <cuda_runtime.h>
@@ -190,7 +193,6 @@ int main(void){
     nvmlDeviceGetHandleByIndex(0, &device);
     int iterations = 1;
     const char *all_kernels[] =  {"vecAdd", "matrixMultiplication", "sradv2_1", "sradv2_2", "nn", "hotspot", "histogram", "gaussian1", "gaussian2", "gemm", "blackScholes", "binaryPartition", "backprop1", "backprop2", "bfs1", "bfs2"};
-    // const char *all_kernels[] =  {"vecAdd", "matrixMultiplication"};
 
     cudaStream_t streams[COLOC_SIZE];    
     // Initialize streams
@@ -214,7 +216,6 @@ int main(void){
         kernelA = all_kernels[i];
         int partitions_A = 1;
         printf("Kernel1 %s, Num of partitions %d  \n", kernelA, partitions_A);
-        // printf("Finished Warmup\n");
         float energyAcc = 0.0f;
         float powerAcc  = 0.0f;
         float timeAcc   = 0.0f;
@@ -234,15 +235,6 @@ int main(void){
         cudaStreamDestroy(streams[i]);
     }
 
-// printf("\n%-20s %4s | %12s %12s %12s\n",
-//        "Kernel", "P", "AvgTime(ms)", "AvgPower(W)", "AvgEnergy(J)");
-// printf("%-20s %4s | %12s %12s %12s\n",
-//        "--------------------", "----",
-//        "------------", "------------", "------------");
-// for (int i = 0; i < resultIdx; i++)
-//     printf("%-20s %4d | %12.3f %12.2f %12.4f\n",
-//            results[i].kernelA, results[i].partitions,
-//            results[i].avgTime, results[i].avgPower, results[i].avgEnergy);
 
 free(results);
 
