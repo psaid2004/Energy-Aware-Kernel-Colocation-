@@ -1,57 +1,71 @@
 # Energy-Aware GPU Kernel Colocation
 
-This repository was used to write **Energy-Aware GPU Kernel Colocation** paper, which is also provided in it. Before using the repository it is higly recommended to read the paper, as it explains the goal of this research, the implemented strategies and other important concepts. Furthermore, it states the findings of the research project.
+This repository contains the code used for the paper **Energy-Aware GPU Kernel Colocation**, which is also included here. Before using the repository, it is highly recommended to read the paper, as it explains the research goals, the implemented strategies, key concepts, and findings.
 
+> **Research / experimental software:** This code is intended for GPU performance and energy experiments. It was developed and tested on the **NVIDIA GeForce RTX 3080 Ti** (80 Streaming Multiprocessors). Results may differ on other hardware.
 
+---
 
-A CUDA-based framework for studying **GPU kernel colocation with the goal of identifying more energy efficient techniques**.
+## Overview
 
-The repository contains various kernels, which originate from the Rodinia benchmark suite and CUDA SDK, namely:
+A CUDA-based framework for studying GPU kernel colocation strategies with the goal of identifying more energy-efficient techniques. The framework supports running kernels individually or concurrently, and measures execution time, GPU power, and estimated energy consumption.
 
-- Vector addition
-- Matrix multiplication
-- SRAD
-- Neural network 
-- Hotspot
-- Histogram
-- Gaussian elimination
-- Tensor Core GEMM
-- Black-Scholes
-- Binary partition
-- Backpropagation
-- Breadth-first search
+---
 
+## Kernels
 
-Workloads were stripped into their minimal memory operations and kernel laucnhes. For each worworkloads a few implementations are provided, the most important being the `spatial` and `temporal` stripped variants, which are designed to be executed by the provided Framewrok. Aleternate variations are provided which can be used for error checking.
+The following kernels are included, originating from the Rodinia benchmark suite and the CUDA Sample SDK:
 
-The framework provides programs to run kernels individually or concurrently and measure execution time, GPU power, and estimated energy consumption. Additioanlly, it contains files to profile kernels to measure GPU resource utilization, done with NVIDIA Nsight Compute.
+- Vector addition (vecAdd)
+- Matrix multiplication (mm)
+- SRAD v2 (sr1, sr2)
+- Neural network (nn)
+- Hotspot (hot)
+- Histogram (hist)
+- Gaussian elimination (g1, g2)
+- Tensor Core GEMM (gemm)
+- Black-Scholes (bs)
+- Binary partition (bip)
+- Backpropagation (bp1, bp2)
+- Breadth-first search (bfs1, bfs2)
 
-> **Research / experimental software:** The code is intended primarily for GPU performance and energy experiments. The provided code was implemented for the NVIDIA GeForce RTX 3080 Ti, which has 80 Stream Multiprocessors.
+Kernels were stripped to their minimal memory operations and kernel launches. For each workload, multiple implementations are provided. The most important are the `spatial` and `temporal` stripped variants, designed to be used with the provided framework. Alternate variations are included for error checking and validation purposes.
 
-## Strategies Implemented
+---
 
-The project investegated different strategies to identify which is best in reducing energy consumption, namely:
+## Colocation Strategies
 
-- **Temporal colocation** — Kernels alternate execution, sharing the same resources, but executing in parallel.
-- **Spatial colocation** — Kernels execute concurrently using different resources from the GPU. Two spatial strategies were implemented, Stacked Colocation with Streams and Stacked Colocation with Green Context. 
+Three strategies were implemented and evaluated:
 
-To achieve the desired behaviours, kernel partitioning was done, where a kernel is divided into multiple subkernels.
+- **Sequential execution (baseline)** — kernels run one after another on the same stream, with no concurrency.
+- **Stacked colocation with Streams** — kernels execute concurrently on separate CUDA streams. Kernel partitioning is used to limit blocks per subkernel to half the number of available SMs, enabling spatial sharing.
+- **Stacked colocation with Green Context** — kernels execute concurrently with hardware-enforced SM partitioning via CUDA Green Context, guaranteeing resource isolation between kernels.
+- **Temporal colocation** — kernels are divided into subkernels that take turns occupying the full GPU, so interleaved execution.
 
-- **Energy measurement** — uses NVIDIA Management Library (NVML) to sample GPU power and combines power with measured runtime to estimate energy.
-- **Green Context experiments** — includes an experiment using CUDA Green Context / SM resource partitioning to assign portions of the GPU to concurrent workloads.
-
+To achieve the desired execution behaviour, **kernel partitioning** was implemented, which is the process of dividng a kernel into multiple subkernels. (read paper for clarification)
+---
 
 ## Requirements
 
-- An **NVIDIA GPU**
-- An NVIDIA driver compatible with the CUDA Toolkit installed
-- For full functionallity, the GPU should support Green Context and Nsight Compute
+### Hardware
+- An NVIDIA GPU 
+- Green Context experiments additionally require a GPU that support CUDA Green Context 
+
 ### Software
-
-The main experiments require:
-
-- **NVIDIA CUDA Toolkit**, including `nvcc`
-- CUDA runtime/driver libraries
-- **NVML** / NVIDIA Management Library (`libnvidia-ml`)
+- **NVIDIA CUDA Toolkit** including `nvcc`
+- **NVML** — NVIDIA Management Library (`libnvidia-ml`), used for power and energy measurement
 - A C++ compiler compatible with the CUDA Toolkit
-- **C++17** support for the framework programs
+- **C++17** support
+
+---
+
+## Citation
+
+If you use this code or build on this work, please cite:
+
+```
+Pedro Cecchini Said. Energy-Aware GPU Kernel Colocation.
+TScIT 45, July 3, 2026, Enschede, The Netherlands. University of Twente.
+```
+
+---
